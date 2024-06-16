@@ -25,7 +25,7 @@ async function run() {
 
     const envString = Object.entries(mergedConfig.deployment.resources.cloud_run.env)
       .map(([key, value]) => `${key}=${value}`)
-      .join(', ')
+      .join(',')
 
     // Convert the secret_env object to a comma-separated string
     const secretEnvString = Object.entries(mergedConfig.deployment.resources.cloud_run.secret_env)
