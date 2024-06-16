@@ -42,11 +42,21 @@ jobs:
         with:
           environment: ${{ env.environment }}
 
+      - name: Run terraform code
+        id: terraform
+        shell: bash
+        run: |
+          ls -lah terraform
+          cat terraform/generated.tf
+
   print-outputs:
     runs-on: ubuntu-latest
     needs: generate-terraform
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Print output
         shell: bash
         run: |
@@ -60,5 +70,3 @@ jobs:
           echo "Output 8: ${{ needs.generate-terraform.outputs.cloud_run_secret_env }}"
           echo "Output 9: ${{ needs.generate-terraform.outputs.gcp_project_id }}"
           echo "Output 10: ${{ needs.generate-terraform.outputs.gcp_region }}"
-          pwd
-          ls -lah 
