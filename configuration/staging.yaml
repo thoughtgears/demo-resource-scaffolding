@@ -5,4 +5,5 @@ service:
     cloud_run:
       env:
         DATA_API_URL: https:/dev.data.co/items
-        BACKEND_URL: https://dev.backend.co/items
+        NODE_ENV: production
+        BACKEND_URL: https://stg.backend.co/items

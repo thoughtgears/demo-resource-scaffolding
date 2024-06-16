@@ -10,7 +10,7 @@ async function readFile(filePath) {
 
 async function generateTerraformCode(mergedConfig) {
   const scriptDir = __dirname
-  const templatePath = path.join(scriptDir, 'templates', 'terraform-template.hbs')
+  const templatePath = path.join(scriptDir, 'terraform-template.hbs')
   const templateSource = fs.readFileSync(templatePath, 'utf8')
   const template = Handlebars.compile(templateSource)
 

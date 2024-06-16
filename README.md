@@ -27,21 +27,24 @@ workload identity federation to authenticate the project in GCP.
 ```yaml
 version: 1
 
-service:
+all:
+  gcp_project_id: my-project-1234
+  gcp_region: europe-west1
+  service: the-store
+
+
+deployment:
   name: item-api
   description: An API to manage items
-  gcp_project_id: my-project-1234
 
   resources:
     firestore:
       db: default
     cloud_run:
-      docker_repository_name: item-api
-      region: europe-west1
-      memory: 256Mi
-      cpu: 1
+      limits:
+        memory: 256Mi
+        cpu: 1
       max_instances: 1
-      min_instances: 1
       concurrency: 80
       env:
         DATA_API_URL: https:/api.data.co/items
@@ -54,7 +57,7 @@ It can be overwritten by a `env.yaml` file in the `configuration` folder.
 ```yaml
 version: 1
 
-service:
+deployment:
   resources:
     cloud_run:
       env:
