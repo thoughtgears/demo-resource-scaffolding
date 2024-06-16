@@ -33468,22 +33468,23 @@ async function run() {
     }
 
     await generateTerraformCode(mergedConfig)
+    console.log(mergedConfig)
 
-    const envString = Object.entries(mergedConfig.deployment.env)
+    const envString = Object.entries(mergedConfig.deployment.resources.cloud_run.env)
       .map(([key, value]) => `${key}=${value}`)
       .join(', ')
 
     // Convert the secret_env object to a comma-separated string
-    const secretEnvString = Object.entries(mergedConfig.deployment.secret_env)
+    const secretEnvString = Object.entries(mergedConfig.deployment.resources.cloud_run.secret_env)
       .map(([key, value]) => `${key}=${value}`)
       .join(', ')
 
     core.setOutput('deployment_name', mergedConfig.deployment.name)
     core.setOutput('service_name', mergedConfig.all.service)
-    core.setOutput('cloud_run_cpu_limits', mergedConfig.deployment.limits.cpu)
-    core.setOutput('cloud_run_memory_limits', mergedConfig.deployment.limits.memory)
-    core.setOutput('cloud_run_max_instances', mergedConfig.deployment.max_instances)
-    core.setOutput('cloud_run_concurrency', mergedConfig.deployment.concurrency)
+    core.setOutput('cloud_run_cpu_limits', mergedConfig.deployment.resources.cloud_run.limits.cpu)
+    core.setOutput('cloud_run_memory_limits', mergedConfig.deployment.resources.cloud_run.limits.memory)
+    core.setOutput('cloud_run_max_instances', mergedConfig.deployment.resources.cloud_run.max_instances)
+    core.setOutput('cloud_run_concurrency', mergedConfig.deployment.resources.cloud_run.concurrency)
     core.setOutput('cloud_run_env', envString)
     core.setOutput('cloud_run_secret_env', secretEnvString)
     core.setOutput('gcp_project_id', mergedConfig.all.gcp_project_id)
