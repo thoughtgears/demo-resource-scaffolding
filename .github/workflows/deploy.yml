@@ -11,6 +11,17 @@ on:
 jobs:
   generate-terraform:
     runs-on: ubuntu-latest
+    outputs:
+      deployment_name: ${{ steps.generate.outputs.deployment_name }}
+      service_name: ${{ steps.generate.outputs.service_name }}
+      cloud_run_cpu_limits: ${{ steps.generate.outputs.cloud_run_cpu_limits }}
+      cloud_run_memory_limits: ${{ steps.generate.outputs.cloud_run_memory_limits }}
+      cloud_run_max_instances: ${{ steps.generate.outputs.cloud_run_max_instances }}
+      cloud_run_concurrency: ${{ steps.generate.outputs.cloud_run_concurrency }}
+      cloud_run_env: ${{ steps.generate.outputs.cloud_run_env }}
+      cloud_run_secret_env: ${{ steps.generate.outputs.cloud_run_secret_env }}
+      gcp_project_id: ${{ steps.generate.outputs.gcp_project_id }}
+      gcp_region: ${{ steps.generate.outputs.gcp_region }}
 
     steps:
       - name: Checkout repository
