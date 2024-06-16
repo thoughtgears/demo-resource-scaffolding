@@ -1,0 +1,25 @@
+version: 1
+
+all:
+  gcp_project_id: my-project-1234
+  gcp_region: europe-west1
+  service: the-store
+
+
+deployment:
+  name: item-api
+  description: An API to manage items
+
+  resources:
+    firestore:
+      db: default
+    cloud_run:
+      limits:
+        memory: 256Mi
+        cpu: 1
+      max_instances: 1
+      concurrency: 80
+      env:
+        DATA_API_URL: https:/api.data.co/items
+      secret_env:
+        DATA_API_KEY: data-api-key:latest

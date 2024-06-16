@@ -1,0 +1,8 @@
+version: 1
+
+service:
+  resources:
+    cloud_run:
+      env:
+        DATA_API_URL: https:/dev.data.co/items
+        NODE_ENV: production

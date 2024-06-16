@@ -1,0 +1,38 @@
+name: 'Infra generator'
+description: 'Generates terraform code and outputs for the deployment of a service'
+author: 'Thoughtgears'
+
+# Define your inputs here.
+inputs:
+  environment:
+    description: 'Environment, dev, staging or prod'
+    required: true
+  gcp_project_id:
+    description: 'GCP project ID'
+
+# Define your outputs here.
+outputs:
+  deployment_name:
+    description: 'The name of the service to be deployed'
+  service_name:
+    description: 'The name of the service the deployment belongs to'
+  cloud_run_cpu_limits:
+    description: 'The cpu limits for the Cloud Run service'
+  cloud_run_memory_limits:
+    description: 'The memory limits for the Cloud Run service'
+  cloud_run_max_instances:
+    description: 'The maximum number of instances for the Cloud Run service'
+  cloud_run_concurrency:
+    description: 'The concurrency for the Cloud Run service'
+  cloud_run_env:
+    description: 'The environment variables for the Cloud Run service'
+  cloud_run_secret_env:
+    description: 'The secret environment variables for the Cloud Run service'
+  gcp_project_id:
+    description: 'The GCP project ID'
+  gcp_region:
+    description: 'The GCP region'
+
+runs:
+  using: node20
+  main: dist/index.js

@@ -1,0 +1,22 @@
+{
+  "name": "demo-resource-scaffolding",
+  "description": "A demo to show how to generate terraform resources using GHA and Digger",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "author": "Jens Skott <jens.skott@thoughtgears.co.uk>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "firebase-admin": "^12.1.1",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}
