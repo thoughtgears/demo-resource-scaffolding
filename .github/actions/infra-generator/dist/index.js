@@ -33476,19 +33476,7 @@ async function run() {
     // Convert the secret_env object to a comma-separated string
     const secretEnvString = Object.entries(mergedConfig.deployment.resources.cloud_run.secret_env)
       .map(([key, value]) => `${key}=${value}`)
-      .join(', ')
-
-    // Debugging: Log the outputs to ensure they are correct
-    console.log('deployment_name:', mergedConfig.deployment.name)
-    console.log('service_name:', mergedConfig.all.service)
-    console.log('cloud_run_cpu_limits:', mergedConfig.deployment.resources.cloud_run.limits.cpu)
-    console.log('cloud_run_memory_limits:', mergedConfig.deployment.resources.cloud_run.limits.memory)
-    console.log('cloud_run_max_instances:', mergedConfig.deployment.resources.cloud_run.max_instances)
-    console.log('cloud_run_concurrency:', mergedConfig.deployment.resources.cloud_run.concurrency)
-    console.log('cloud_run_env:', envString)
-    console.log('cloud_run_secret_env:', secretEnvString)
-    console.log('gcp_project_id:', mergedConfig.all.gcp_project_id)
-    console.log('gcp_region:', mergedConfig.all.gcp_region)
+      .join(',')
 
     core.setOutput('deployment_name', mergedConfig.deployment.name)
     core.setOutput('service_name', mergedConfig.all.service)
