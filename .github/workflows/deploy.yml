@@ -60,6 +60,5 @@ jobs:
           echo "Output 8: ${{ needs.generate-terraform.outputs.cloud_run_secret_env }}"
           echo "Output 9: ${{ needs.generate-terraform.outputs.gcp_project_id }}"
           echo "Output 10: ${{ needs.generate-terraform.outputs.gcp_region }}"
-          ls -lah terraform
-          cat terraform/generated.tf
-
+          pwd
+          ls -lah 
