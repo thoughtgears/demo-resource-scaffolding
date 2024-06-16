@@ -33452,7 +33452,7 @@ async function run() {
   try {
     const gcp_project_id = core.getInput('gcp_project_id')
     const env = core.getInput('environment', { required: true })
-    if (!['dev', 'staging', ['prod']].includes(env)) {
+    if (!['dev', 'staging', 'prod'].includes(env)) {
       core.setFailed('Invalid environment, dev, staging or prod are the only valid options')
     }
 
