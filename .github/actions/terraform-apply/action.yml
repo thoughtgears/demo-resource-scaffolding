@@ -44,6 +44,27 @@ runs:
     - name: 'Set up Cloud SDK'
       uses: google-github-actions/setup-gcloud@v2
 
+    - name: Generate Backend Config
+      id: backend-config
+      working-directory: ${{ inputs.terraform_directory }}
+      shell: bash
+      run: |
+        #!/bin/bash
+        
+        
+        cat <<EOL > backend.tf
+        terraform {
+          backend "gcs" {
+            bucket = "${{ inputs.gcp_project_id }}-terraform-state"
+            prefix  = "demo-resource-scaffolding"
+          }
+        }
+        EOL
+        
+        terraform fmt backend.tf
+
+        echo "backend.tf generated successfully."
+
     - name: Terraform Init
       id: init
       working-directory: ${{ inputs.terraform_directory }}

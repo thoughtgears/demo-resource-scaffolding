@@ -19,7 +19,7 @@ you have a project in GCP for the resources and the service is a cloud run appli
 ## How to use
 
 Generate configuration in the `configuration` folder and run the GitHub action to create the resources in GCP.
-The GitHub action will use the `digger` tool to run the terraform against the Google Cloud Platform and will use
+The GitHub action will a custom action to run the terraform against the Google Cloud Platform and will use
 workload identity federation to authenticate the project in GCP.
 
 ## Configuration
