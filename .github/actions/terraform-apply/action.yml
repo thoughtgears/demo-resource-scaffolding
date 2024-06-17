@@ -76,10 +76,10 @@ runs:
       id: plan
       working-directory: ${{ inputs.terraform_directory }}
       shell: bash
-      run: TF_VAR_project_id=${{ inputs.gcp_project_id }} terraform plan -no-color -out=tf.plan
+      run: terraform plan -no-color -out=tf.plan
 
     - name: Terraform Apply
       id: apply
       working-directory: ${{ inputs.terraform_directory }}
       shell: bash
-      run: TF_VAR_project_id=${{ inputs.gcp_project_id }}terraform apply -input=false -no-color tf.plan
+      run: terraform apply -input=false -no-color tf.plan
