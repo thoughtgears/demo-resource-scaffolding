@@ -20,7 +20,6 @@ jobs:
       cloud_run_concurrency: ${{ steps.generate.outputs.cloud_run_concurrency }}
       cloud_run_env: ${{ steps.generate.outputs.cloud_run_env }}
       cloud_run_secret_env: ${{ steps.generate.outputs.cloud_run_secret_env }}
-      gcp_project_id: ${{ steps.generate.outputs.gcp_project_id }}
       gcp_region: ${{ steps.generate.outputs.gcp_region }}
 
     permissions:
@@ -95,7 +94,7 @@ jobs:
       - name: Login to GAR
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.GCP_PROEJCT_ID }}-docker.pkg.dev
+          registry: ${{ secrets.GCP_PROJECT_ID }}-docker.pkg.dev
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
@@ -103,7 +102,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.GCP_PROEJCT_ID }}-docker.pkg.dev/${{ needs.terraform.outputs.gcp_project_id }}/${{ needs.terraform.outputs.service_name }}/${{ needs.terraform.outputs.deployment_name }}
+          images: ${{ secrets.GCP_PROJECT_ID }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ needs.terraform.outputs.service_name }}/${{ needs.terraform.outputs.deployment_name }}
           tags: |
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
@@ -132,9 +131,9 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          service_account: ${ { secrets.GCP_WIF_SA } }
-          workload_identity_provider: ${ { secrets.GCP_WIF_PROVIDER } }
-          project_id: ${ { secrets.GCP_PROJECT_ID } }
+          service_account: ${{ secrets.GCP_WIF_SA }}
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Get Git SHA
         id: git_sha
@@ -150,26 +149,10 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ needs.terraform.outputs.deployment_name }}
-          image: ${{ needs.terraform.outputs.gcp_region }}-docker.pkg.dev/${{ needs.terraform.outputs.gcp_project_id }}/${{ needs.terraform.outputs.service_name }}/${{ needs.terraform.outputs.deployment_name }}:latest
+          image: ${{ needs.terraform.outputs.gcp_region }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ needs.terraform.outputs.service_name }}/${{ needs.terraform.outputs.deployment_name }}:latest
           env_vars: ${{ needs.terraform.outputs.cloud_run_env }}
           # secrets: ${{ needs.terraform.outputs.cloud_run_secret_env }} # Removed this for now since I dont manage secrets
           tag: ${{ env.SHORT_SHA }}
-          project_id: ${{ needs.terraform.outputs.gcp_project_id }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
           region: ${{ needs.terraform.outputs.gcp_region }}
           flags: --no-allow-unauthenticated --memory=${{ needs.terraform.outputs.cloud_run_memory_limits }} --cpu=${{ needs.terraform.outputs.cloud_run_cpu_limits }} --max-instances=${{ needs.terraform.outputs.cloud_run_max_instances }} --concurrency=${{ needs.terraform.outputs.cloud_run_concurrency }}
-
-
-#
-#      - name: Print output
-#        shell: bash
-#        run: |
-#          echo "Output 1: ${{ needs.terraform.outputs.deployment_name }}"
-#          echo "Output 2: ${{ needs.terraform.outputs.service_name }}"
-#          echo "Output 3: ${{ needs.terraform.outputs.cloud_run_cpu_limits }}"
-#          echo "Output 4: ${{ needs.terraform.outputs.cloud_run_memory_limits }}"
-#          echo "Output 5: ${{ needs.terraform.outputs.cloud_run_max_instances }}"
-#          echo "Output 6: ${{ needs.terraform.outputs.cloud_run_concurrency }}"
-#          echo "Output 7: ${{ needs.terraform.outputs.cloud_run_env }}"
-#          echo "Output 8: ${{ needs.terraform.outputs.cloud_run_secret_env }}"
-#          echo "Output 9: ${{ needs.terraform.outputs.gcp_project_id }}"
-#          echo "Output 10: ${{ needs.terraform.outputs.gcp_region }}"
