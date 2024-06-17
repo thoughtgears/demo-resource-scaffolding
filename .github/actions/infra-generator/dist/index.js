@@ -33467,6 +33467,9 @@ async function run() {
       mergedConfig.all.gcp_project_id = gcp_project_id
     }
 
+    console.log('Merged config:', mergedConfig)
+    console.log('GCP Project ID input', gcp_project_id)
+
     await generateTerraformCode(mergedConfig)
 
     const envString = Object.entries(mergedConfig.deployment.resources.cloud_run.env)
