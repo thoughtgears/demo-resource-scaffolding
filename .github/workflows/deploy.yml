@@ -61,7 +61,7 @@ jobs:
           gcp_workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
 
       - name: Run terraform apply
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         id: terraform-apply
         uses: ./.github/actions/terraform-apply
         with:
@@ -71,24 +71,105 @@ jobs:
           gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
           gcp_workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
 
-  deploy-cloud-run:
+  build_docker:
     runs-on: ubuntu-latest
     needs: terraform
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Print output
-        shell: bash
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          service_account: ${{ secrets.GCP_WIF_SA }}
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Login to GAR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.GCP_PROEJCT_ID }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.GCP_PROEJCT_ID }}-docker.pkg.dev/${{ needs.terraform.outputs.gcp_project_id }}/${{ needs.terraform.outputs.service_name }}/${{ needs.terraform.outputs.deployment_name }}
+          tags: |
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-cloud-run:
+    runs-on: ubuntu-latest
+    needs: [ terraform, build_docker ]
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          service_account: ${ { secrets.GCP_WIF_SA } }
+          workload_identity_provider: ${ { secrets.GCP_WIF_PROVIDER } }
+          project_id: ${ { secrets.GCP_PROJECT_ID } }
+
+      - name: Get Git SHA
+        id: git_sha
         run: |
-          echo "Output 1: ${{ needs.terraform.outputs.deployment_name }}"
-          echo "Output 2: ${{ needs.terraform.outputs.service_name }}"
-          echo "Output 3: ${{ needs.terraform.outputs.cloud_run_cpu_limits }}"
-          echo "Output 4: ${{ needs.terraform.outputs.cloud_run_memory_limits }}"
-          echo "Output 5: ${{ needs.erraform.outputs.cloud_run_max_instances }}"
-          echo "Output 6: ${{ needs.terraform.outputs.cloud_run_concurrency }}"
-          echo "Output 7: ${{ needs.terraform.outputs.cloud_run_env }}"
-          echo "Output 8: ${{ needs.terraform.outputs.cloud_run_secret_env }}"
-          echo "Output 9: ${{ needs.terraform.outputs.gcp_project_id }}"
-          echo "Output 10: ${{ needs.terraform.outputs.gcp_region }}"
+          LONG_SHA=$(git rev-parse HEAD)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "LONG_SHA=$LONG_SHA" >> $GITHUB_ENV
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+
+      - name: Deploy from PR
+        id: deploy-pr
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ needs.terraform.outputs.deployment_name }}
+          image: ${{ needs.terraform.outputs.gcp_region }}-docker.pkg.dev/${{ needs.terraform.outputs.gcp_project_id }}/${{ needs.terraform.outputs.service_name }}/${{ needs.terraform.outputs.deployment_name }}:latest
+          env_vars: ${{ needs.terraform.outputs.cloud_run_env }}
+          # secrets: ${{ needs.terraform.outputs.cloud_run_secret_env }} # Removed this for now since I dont manage secrets
+          tag: ${{ outputs.git_sha.SHORT_SHA }}
+          project_id: ${{ needs.terraform.outputs.gcp_project_id }}
+          region: ${{ needs.terraform.outputs.gcp_region }}
+          flags: --no-allow-unauthenticated --memory=${{ needs.terraform.outputs.cloud_run_memory_limits }} --cpu=${{ needs.terraform.outputs.cloud_run_cpu_limits }} --max-instances=${{ needs.terraform.outputs.cloud_run_max_instances }} --concurrency=${{ needs.terraform.outputs.cloud_run_concurrency }}
+
+
+#
+#      - name: Print output
+#        shell: bash
+#        run: |
+#          echo "Output 1: ${{ needs.terraform.outputs.deployment_name }}"
+#          echo "Output 2: ${{ needs.terraform.outputs.service_name }}"
+#          echo "Output 3: ${{ needs.terraform.outputs.cloud_run_cpu_limits }}"
+#          echo "Output 4: ${{ needs.terraform.outputs.cloud_run_memory_limits }}"
+#          echo "Output 5: ${{ needs.terraform.outputs.cloud_run_max_instances }}"
+#          echo "Output 6: ${{ needs.terraform.outputs.cloud_run_concurrency }}"
+#          echo "Output 7: ${{ needs.terraform.outputs.cloud_run_env }}"
+#          echo "Output 8: ${{ needs.terraform.outputs.cloud_run_secret_env }}"
+#          echo "Output 9: ${{ needs.terraform.outputs.gcp_project_id }}"
+#          echo "Output 10: ${{ needs.terraform.outputs.gcp_region }}"
