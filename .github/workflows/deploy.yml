@@ -153,7 +153,7 @@ jobs:
           image: ${{ needs.terraform.outputs.gcp_region }}-docker.pkg.dev/${{ needs.terraform.outputs.gcp_project_id }}/${{ needs.terraform.outputs.service_name }}/${{ needs.terraform.outputs.deployment_name }}:latest
           env_vars: ${{ needs.terraform.outputs.cloud_run_env }}
           # secrets: ${{ needs.terraform.outputs.cloud_run_secret_env }} # Removed this for now since I dont manage secrets
-          tag: ${{ outputs.git_sha.SHORT_SHA }}
+          tag: ${{ env.SHORT_SHA }}
           project_id: ${{ needs.terraform.outputs.gcp_project_id }}
           region: ${{ needs.terraform.outputs.gcp_region }}
           flags: --no-allow-unauthenticated --memory=${{ needs.terraform.outputs.cloud_run_memory_limits }} --cpu=${{ needs.terraform.outputs.cloud_run_cpu_limits }} --max-instances=${{ needs.terraform.outputs.cloud_run_max_instances }} --concurrency=${{ needs.terraform.outputs.cloud_run_concurrency }}
