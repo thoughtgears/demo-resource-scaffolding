@@ -16,6 +16,12 @@ inputs:
   pr_id:
     description: 'Pull request ID'
     required: true
+  gcp_workload_identity_provider:
+    description: 'GCP Workload Identity Provider'
+    required: true
+  gcp_project_id:
+    description: 'GCP Project ID'
+    required: true
 
 runs:
   using: "composite"
@@ -32,6 +38,8 @@ runs:
       with:
         service_account: ${{ inputs.terraform_sa }}
         create_credentials_file: true
+        workload_identity_provider: ${{ inputs.gcp_workload_identity_provider }}
+        project_id: ${{ inputs.gcp_project_id }}
 
     - name: 'Set up Cloud SDK'
       uses: google-github-actions/setup-gcloud@v2
